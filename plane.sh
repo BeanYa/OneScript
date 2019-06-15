@@ -60,10 +60,10 @@ start_check(){
         firewall-cmd --reload
         if [ -f "$log" ]; then
             for line in `cat $log`
-                declare -i i=0
-                let domain=$line
+                i=0
+                domain=$line
                 do
-                let ++i
+                i=i+1
                 if [ "$i" -eq 1 ]; then
                     line=$(echo $line | tr -d "\"")
                     por=${line%:*}
