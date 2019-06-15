@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # 一些常量
-domain=""
 method="aes-256-cfb"
 mup="6001"
 log="./add.log"
@@ -39,12 +38,12 @@ add_port(){
     rel=$(firewall-cmd --reload)
     echo "防火墙重启操作: $rel"
 
-    # echo "IP:$(get_ip) 端口:$1 密码:$2"
-    echo "Domain:$domain Port:$1 PWD:$2"
+    echo "IP:$(get_ip) 端口:$1 密码:$2"
+    # echo "Domain:$domain Port:$1 PWD:$2"
 
     # base64链接
-    # link=$( base64 <<< "$method:$2@$(get_ip):$1" )
-    link=$(base64 <<< "$method:$2@$domain:$1")
+    link=$( base64 <<< "$method:$2@$(get_ip):$1" )
+    # link=$(base64 <<< "$method:$2@$domain:$1")
 
     echo "ss://$link"
     echo "-------------------------------------------------------------------------"
@@ -60,17 +59,12 @@ start_check(){
         firewall-cmd --reload
         if [ -f "$log" ]; then
             for line in `cat $log`
-                i=0
-                domain=$line
                 do
-                i=i+1
-                if [ "$i" -eq 1 ]; then
-                    line=$(echo $line | tr -d "\"")
-                    por=${line%:*}
-                    pwd=${line#*:}
-                    add_port $por $pwd
-                    echo "port:$por,pwd:$pwd"
-                fi
+                line=$(echo $line | tr -d "\"")
+                por=${line%:*}
+                pwd=${line#*:}
+                add_port $por $pwd
+                echo "port:$por,pwd:$pwd"
             done
         fi
     else
@@ -94,7 +88,7 @@ start_check
 
 if [ -n "$1" ]; then
     echo "-------------------------------------------------------------------------"
-    echo "Add new Port $1@$domain PWD:$2"
+    echo "Add new Port $1@$(get_ip) PWD:$2"
     add_port $1 $2
     echo -e "\"$1\":\"$2\"" >> add.log
 else
